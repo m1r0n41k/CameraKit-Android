@@ -100,8 +100,8 @@ class Camera2 extends CameraImpl {
     }
 
     @Override
-    void setFlash(@Flash int flash) {
-
+    int setFlash(@Flash int flash) {
+        return flash;
     }
 
     @Override

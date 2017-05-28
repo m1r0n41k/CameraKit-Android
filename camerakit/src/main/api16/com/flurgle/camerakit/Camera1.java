@@ -126,7 +126,7 @@ public class Camera1 extends CameraImpl {
     }
 
     @Override
-    void setFlash(@Flash int flash) {
+    int setFlash(@Flash int flash) {
         if (mCameraParameters != null) {
             List<String> flashes = mCameraParameters.getSupportedFlashModes();
             String internalFlash = new ConstantMapper.Flash(flash).map();
@@ -145,6 +145,7 @@ public class Camera1 extends CameraImpl {
         } else {
             mFlash = flash;
         }
+        return mFlash;
     }
 
     @Override
@@ -360,17 +361,17 @@ public class Camera1 extends CameraImpl {
         int previewRotation = calculatePreviewRotation();
         if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             //Front is flipped
-            return (previewRotation + 180 + 2*mDisplayOrientation + 720) %360;
+            return (previewRotation + 180 + 2 * mDisplayOrientation + 720) % 360;
         } else {
             return previewRotation;
         }
     }
 
     private void adjustCameraParameters() {
-        boolean invertPreviewSizes = mDisplayOrientation%180 != 0;
+        boolean invertPreviewSizes = mDisplayOrientation % 180 != 0;
         mPreview.setTruePreviewSize(
-                invertPreviewSizes? getPreviewResolution().getHeight() : getPreviewResolution().getWidth(),
-                invertPreviewSizes? getPreviewResolution().getWidth() : getPreviewResolution().getHeight()
+                invertPreviewSizes ? getPreviewResolution().getHeight() : getPreviewResolution().getWidth(),
+                invertPreviewSizes ? getPreviewResolution().getWidth() : getPreviewResolution().getHeight()
         );
 
         mCameraParameters.setPreviewSize(
@@ -519,17 +520,17 @@ public class Camera1 extends CameraImpl {
                         List<Camera.Area> meteringAreas = new ArrayList<>();
                         meteringAreas.add(new Camera.Area(rect, getFocusMeteringAreaWeight()));
                         if (parameters.getMaxNumFocusAreas() != 0 && focusMode != null &&
-                            (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-                        ) {
+                                (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+                                ) {
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                             parameters.setFocusAreas(meteringAreas);
                             if (parameters.getMaxNumMeteringAreas() > 0) {
                                 parameters.setMeteringAreas(meteringAreas);
                             }
-                            if(!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                                 return false; //cannot autoFocus
                             }
                             mCamera.setParameters(parameters);
@@ -540,7 +541,7 @@ public class Camera1 extends CameraImpl {
                                 }
                             });
                         } else if (parameters.getMaxNumMeteringAreas() > 0) {
-                            if(!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                                 return false; //cannot autoFocus
                             }
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
