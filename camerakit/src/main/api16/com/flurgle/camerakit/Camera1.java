@@ -140,7 +140,6 @@ public class Camera1 extends CameraImpl {
                     mFlash = FLASH_OFF;
                 }
             }
-
             mCamera.setParameters(mCameraParameters);
         } else {
             mFlash = flash;
@@ -263,11 +262,11 @@ public class Camera1 extends CameraImpl {
             );
             AspectRatio targetRatio = aspectRatios.size() > 0 ? aspectRatios.last() : null;
 
-            Iterator<Size> descendingSizes = sizes.descendingIterator();
+            Iterator<Size> descendingSizes = sizes.iterator();
             Size size;
             while (descendingSizes.hasNext() && mCaptureSize == null) {
                 size = descendingSizes.next();
-                if (targetRatio == null || targetRatio.matches(size)) {
+                if ((targetRatio == null || targetRatio.matches(size)) && (size.getWidth() >= 960 && size.getHeight() >= 1280)) {
                     mCaptureSize = size;
                     break;
                 }
