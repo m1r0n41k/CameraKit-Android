@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -256,17 +257,12 @@ public class Camera1 extends CameraImpl {
                 sizes.add(new Size(size.width, size.height));
             }
 
-            TreeSet<AspectRatio> aspectRatios = findCommonAspectRatios(
-                    mCameraParameters.getSupportedPreviewSizes(),
-                    mCameraParameters.getSupportedPictureSizes()
-            );
-            AspectRatio targetRatio = aspectRatios.size() > 0 ? aspectRatios.last() : null;
-
             Iterator<Size> descendingSizes = sizes.iterator();
             Size size;
             while (descendingSizes.hasNext() && mCaptureSize == null) {
                 size = descendingSizes.next();
-                if ((targetRatio == null || targetRatio.matches(size)) && (size.getWidth() >= 960 && size.getHeight() >= 1280)) {
+                Log.d("CAMERAPICT", size.toString());
+                if ((size.getWidth() >= 960 && size.getHeight() >= 1280) || !descendingSizes.hasNext()) {
                     mCaptureSize = size;
                     break;
                 }
@@ -284,17 +280,13 @@ public class Camera1 extends CameraImpl {
                 sizes.add(new Size(size.width, size.height));
             }
 
-            TreeSet<AspectRatio> aspectRatios = findCommonAspectRatios(
-                    mCameraParameters.getSupportedPreviewSizes(),
-                    mCameraParameters.getSupportedPictureSizes()
-            );
-            AspectRatio targetRatio = aspectRatios.size() > 0 ? aspectRatios.last() : null;
 
-            Iterator<Size> descendingSizes = sizes.descendingIterator();
+            Iterator<Size> descendingSizes = sizes.iterator();
             Size size;
             while (descendingSizes.hasNext() && mPreviewSize == null) {
                 size = descendingSizes.next();
-                if (targetRatio == null || targetRatio.matches(size)) {
+                Log.d("CAMERAPREV", size.toString());
+                if ((size.getWidth() >= 960 && size.getHeight() >= 1280) || !descendingSizes.hasNext()) {
                     mPreviewSize = size;
                     break;
                 }
