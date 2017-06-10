@@ -217,6 +217,7 @@ public class Camera1 extends CameraImpl {
                     }
                 });
                 break;
+            
 
             case METHOD_STILL:
                 mCamera.setOneShotPreviewCallback(new Camera.PreviewCallback() {
@@ -290,6 +291,9 @@ public class Camera1 extends CameraImpl {
                     mPreviewSize = size;
                     break;
                 }
+            }
+            if (mPreviewSize == null) {
+                mPreviewSize = sizes.descendingIterator().next();
             }
         }
 
