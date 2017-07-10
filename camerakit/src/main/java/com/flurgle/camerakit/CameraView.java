@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -378,6 +379,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     public void setCropOutput(boolean cropOutput) {
         this.mCropOutput = cropOutput;
+    }
+
+    public void setVideoOutputFile(File outputFile) {
+        mCameraImpl.setVideoOutputFile(outputFile);
     }
 
     @Facing

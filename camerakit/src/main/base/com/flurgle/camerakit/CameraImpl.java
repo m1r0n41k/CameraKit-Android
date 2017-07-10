@@ -1,5 +1,9 @@
 package com.flurgle.camerakit;
 
+import android.media.MediaRecorder;
+
+import java.io.File;
+
 import android.support.annotation.Nullable;
 
 abstract class CameraImpl {
@@ -23,6 +27,7 @@ abstract class CameraImpl {
     abstract void setMethod(@Method int method);
     abstract void setZoom(@Zoom int zoom);
     abstract void setVideoQuality(@VideoQuality int videoQuality);
+    abstract void setVideoOutputFile(File outputFile);
 
     abstract void captureImage();
     abstract void startVideo();
