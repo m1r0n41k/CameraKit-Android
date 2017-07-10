@@ -270,6 +270,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             return;
         }
         mIsStarted = true;
+
+        if (mCameraImpl != null && mCameraImpl.isCameraOpened())
+            return;
+
         int cameraCheck = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
         int audioCheck = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO);
 
@@ -335,8 +339,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     }
 
     public void setFlash(@Flash int flash) {
-        this.mFlash = flash;
-        mCameraImpl.setFlash(flash);
+        this.mFlash = mCameraImpl.setFlash(flash);
     }
 
     @Flash

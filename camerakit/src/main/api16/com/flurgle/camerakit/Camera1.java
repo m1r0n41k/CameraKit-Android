@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -133,7 +134,7 @@ public class Camera1 extends CameraImpl {
     }
 
     @Override
-    void setFlash(@Flash int flash) {
+    int setFlash(@Flash int flash) {
         if (mCameraParameters != null) {
             List<String> flashes = mCameraParameters.getSupportedFlashModes();
             String internalFlash = new ConstantMapper.Flash(flash).map();
@@ -147,11 +148,11 @@ public class Camera1 extends CameraImpl {
                     mFlash = FLASH_OFF;
                 }
             }
-
             mCamera.setParameters(mCameraParameters);
         } else {
             mFlash = flash;
         }
+        return mFlash;
     }
 
     @Override
@@ -343,11 +344,51 @@ public class Camera1 extends CameraImpl {
 
     @Override
     Size getCaptureResolution() {
+        if (mCaptureSize == null && mCameraParameters != null) {
+            TreeSet<Size> sizes = new TreeSet<>();
+            for (Camera.Size size : mCameraParameters.getSupportedPictureSizes()) {
+                sizes.add(new Size(size.width, size.height));
+            }
+
+            Iterator<Size> descendingSizes = sizes.iterator();
+            Size size;
+            while (descendingSizes.hasNext() && mCaptureSize == null) {
+                size = descendingSizes.next();
+                Log.d("CAMERAPICT", size.toString());
+                if ((size.getWidth() >= 960 && size.getHeight() >= 1280) || !descendingSizes.hasNext()) {
+                    mCaptureSize = size;
+                    break;
+                }
+            }
+        }
+
         return mCaptureSize;
     }
 
     @Override
     Size getPreviewResolution() {
+        if (mPreviewSize == null && mCameraParameters != null) {
+            TreeSet<Size> sizes = new TreeSet<>();
+            for (Camera.Size size : mCameraParameters.getSupportedPreviewSizes()) {
+                sizes.add(new Size(size.width, size.height));
+            }
+
+
+            Iterator<Size> descendingSizes = sizes.iterator();
+            Size size;
+            while (descendingSizes.hasNext() && mPreviewSize == null) {
+                size = descendingSizes.next();
+                Log.d("CAMERAPREV", size.toString());
+                if ((size.getWidth() >= 960 && size.getHeight() >= 1280) || !descendingSizes.hasNext()) {
+                    mPreviewSize = size;
+                    break;
+                }
+            }
+            if (mPreviewSize == null) {
+                mPreviewSize = sizes.descendingIterator().next();
+            }
+        }
+
         return mPreviewSize;
     }
 
@@ -414,7 +455,7 @@ public class Camera1 extends CameraImpl {
         int previewRotation = calculatePreviewRotation();
         if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             //Front is flipped
-            return (previewRotation + 180 + 2*mDisplayOrientation + 720) %360;
+            return (previewRotation + 180 + 2 * mDisplayOrientation + 720) % 360;
         } else {
             return previewRotation;
         }
@@ -423,10 +464,10 @@ public class Camera1 extends CameraImpl {
     private void adjustCameraParameters() {
         initResolutions();
 
-        boolean invertPreviewSizes = mDisplayOrientation%180 != 0;
+        boolean invertPreviewSizes = mDisplayOrientation % 180 != 0;
         mPreview.setTruePreviewSize(
-                invertPreviewSizes? getPreviewResolution().getHeight() : getPreviewResolution().getWidth(),
-                invertPreviewSizes? getPreviewResolution().getWidth() : getPreviewResolution().getHeight()
+                invertPreviewSizes ? getPreviewResolution().getHeight() : getPreviewResolution().getWidth(),
+                invertPreviewSizes ? getPreviewResolution().getWidth() : getPreviewResolution().getHeight()
         );
 
         mCameraParameters.setPreviewSize(
@@ -592,17 +633,17 @@ public class Camera1 extends CameraImpl {
                         List<Camera.Area> meteringAreas = new ArrayList<>();
                         meteringAreas.add(new Camera.Area(rect, getFocusMeteringAreaWeight()));
                         if (parameters.getMaxNumFocusAreas() != 0 && focusMode != null &&
-                            (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-                        ) {
+                                (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+                                ) {
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                             parameters.setFocusAreas(meteringAreas);
                             if (parameters.getMaxNumMeteringAreas() > 0) {
                                 parameters.setMeteringAreas(meteringAreas);
                             }
-                            if(!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                                 return false; //cannot autoFocus
                             }
                             mCamera.setParameters(parameters);
@@ -613,7 +654,7 @@ public class Camera1 extends CameraImpl {
                                 }
                             });
                         } else if (parameters.getMaxNumMeteringAreas() > 0) {
-                            if(!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                                 return false; //cannot autoFocus
                             }
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
